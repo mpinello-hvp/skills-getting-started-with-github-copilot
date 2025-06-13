@@ -38,6 +38,45 @@ activities = {
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
+    },
+    # Sports activities
+    "Soccer Team": {
+        "description": "Join the school soccer team and compete in matches",
+        "schedule": "Wednesdays, 4:00 PM - 5:30 PM",
+        "max_participants": 18,
+        "participants": []
+    },
+    "Basketball Club": {
+        "description": "Practice basketball skills and play friendly games",
+        "schedule": "Thursdays, 3:30 PM - 5:00 PM",
+        "max_participants": 15,
+        "participants": []
+    },
+    # Artistic activities
+    "Art Workshop": {
+        "description": "Explore painting, drawing, and sculpture techniques",
+        "schedule": "Mondays, 4:00 PM - 5:30 PM",
+        "max_participants": 16,
+        "participants": []
+    },
+    "Drama Club": {
+        "description": "Act, direct, and produce school plays and skits",
+        "schedule": "Tuesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 20,
+        "participants": []
+    },
+    # Intellectual activities
+    "Math Olympiad": {
+        "description": "Prepare for math competitions and solve challenging problems",
+        "schedule": "Fridays, 2:00 PM - 3:30 PM",
+        "max_participants": 10,
+        "participants": []
+    },
+    "Science Club": {
+        "description": "Conduct experiments and explore scientific concepts",
+        "schedule": "Wednesdays, 3:30 PM - 5:00 PM",
+        "max_participants": 14,
+        "participants": []
     }
 }
 
@@ -65,3 +104,22 @@ def signup_for_activity(activity_name: str, email: str):
     # Add student
     activity["participants"].append(email)
     return {"message": f"Signed up {email} for {activity_name}"}
+
+
+@app.route('/signup', methods=['POST'])
+def signup_for_activity():
+    data = request.get_json()
+    activity_id = data.get('activity_id')
+    email = data.get('email')
+
+    activity = get_activity_by_id(activity_id)
+    if not activity:
+        return jsonify({'error': 'Activity not found'}), 404
+
+    # Validate student is not already signed up
+    if email in activity['participants']:
+        return jsonify({'error': 'Student already signed up'}), 400
+
+    activity['participants'].append(email)
+    save_activity(activity)
+    return jsonify({'success': True}), 200
